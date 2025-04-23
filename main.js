@@ -55,7 +55,9 @@ export async function tambahkasir(nama, harga,) {
   try {
     const dokRef = await addDoc(collection(db, 'kasir'), {
       nama: nama,
-      harga: harga,
+      status: status,
+      prioritas: prioritas 
+      tanggal: tanggal
     });
     console.log('berhasil menembah kasir ' + dokRef.id);
   } catch (e) {
@@ -71,7 +73,9 @@ export async function hapuskasir(docId) {
 export async function ubahkasir(docId, nama, harga,) {
   await updateDoc(doc(db, "kasir", docId), {
     nama: nama,
-    harga: harga,
+    status: status,
+    prioritas: prioritas,
+    tanggal: tanggal,
   });
 }
 //fungsi untuk ambil data dan untuk diubah
