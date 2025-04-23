@@ -23,66 +23,61 @@ const firebaseConfig = {
   measurementId: "G-WR2W88N8M3"
 };
 
-// Initialize Firebase
+// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-// Mendapatkan elemen dari DOM
-const taskInput = document.getElementById('taskInput');
-const addTaskButton = document.getElementById('addTaskButton');
-const taskList = document.getElementById('taskList');
+const db = getFirestore(app);
+//fungsi untuk menampilkan data dari data base
+export async function ambilDaftarkasir() {
+  const refDokumen = collection(db, "kasir");
+  const kueri = query(refDokumen, orderBy("nama"));
+  const cuplikanKueri = await getDocs(kueri);
 
-// Array untuk menyimpan tugas
-let tasks = [];
-
-// Fungsi untuk menampilkan tugas
-function displayTasks() {
-    taskList.innerHTML = ''; // Mengosongkan daftar tugas
-    tasks.forEach((task, index) => {
-        const li = document.createElement('li');
-        li.textContent = task.name + (task.completed ? ' (Selesai)' : '');
-        li.className = task.completed ? 'completed' : '';
-        
-        // Tombol untuk menandai tugas selesai
-        const completeButton = document.createElement('button');
-        completeButton.textContent = 'Selesai';
-        completeButton.onclick = () => markTaskAsCompleted(index);
-        
-        // Tombol untuk menghapus tugas
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Hapus';
-        deleteButton.onclick = () => deleteTask(index);
-        
-        li.appendChild(completeButton);
-        li.appendChild(deleteButton);
-        taskList.appendChild(li);
+  let hasil = [];
+  cuplikanKueri.forEach((dok) => {
+    hasil.push({
+      id: dok.id,
+      nama: dok.data().nama,
+      harga: dok.data().harga,
     });
+  });
+
+
+
+  return hasil;
 }
+//################$#######
 
-// Fungsi untuk menambahkan data 
-export async function tambahtoDoList (nama, status, prioritas, tanggal) { try {
-    const dokRef = await addDoc (collection(db, 'toDoList'), { 
-    nama: nama,
-    status: status,
-    prioritas: prioritas,
-    tanggal: tanggal 
+export function formatAngka(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+//fungsi untuk menambahkan data
+export async function tambahkasir(nama, harga,) {
+  try {
+    const dokRef = await addDoc(collection(db, 'kasir'), {
+      nama: nama,
+      harga: harga,
     });
-    console.log('berhasil menambah toDoList + dokRef.id');
-} catch (e) {
-    console.log ('gagal menambah toDoList + e');
+    console.log('berhasil menembah kasir ' + dokRef.id);
+  } catch (e) {
+    console.log('gagal menambah kasir ' + e);
   }
 }
-//####################
-// Fungsi untuk hapus data
-export async function hapustoDoList (docId, nama, status , prioritas, tanggal,) { await updateDoc (doc(db,) "toDoList", docId), {
-    tasks[index].completed = true;
-    displayTasks(); // Menampilkan tugas
+//#####################
+//fungsi untuk hapus data
+export async function hapuskasir(docId) {
+  await deleteDoc(doc(db, "kasir", docId));
 }
-
-// Fungsi untuk ambil data dan untuk diubah 
-function deleteTask(index) {
-    tasks.splice(index, 1);
-    displayTasks(); // Menampilkan tugas
+//fungsi untuk ubah data
+export async function ubahkasir(docId, nama, harga,) {
+  await updateDoc(doc(db, "kasir", docId), {
+    nama: nama,
+    harga: harga,
+  });
 }
+//fungsi untuk ambil data dan untuk diubah
+export async function ambilkasir(docId) {
+  const docRef = await doc(db, "kasir", docId);
+  const docSnap = await getDoc(docRef);
 
-// Event listener untuk tombol tambah tugas
-addTaskButton.addEventListener('click', addTask);
+  return await docSnap.data();
+}
